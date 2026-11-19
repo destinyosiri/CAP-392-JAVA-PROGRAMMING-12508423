@@ -1,0 +1,45 @@
+class Solution {
+    private boolean[][] rows = new boolean[9][10];
+    private boolean[][] cols = new boolean[9][10];
+    private boolean[][] boxes = new boolean[9][10];
+
+    public void solveSudoku(char[][] board) {
+        // record the digits already on the board
+        for (int r = 0; r < 9; r++) {
+            for (int c = 0; c < 9; c++) {
+                if (board[r][c] != '.') {
+                    int d = board[r][c] - '0';
+                    rows[r][d] = cols[c][d] = boxes[(r / 3) * 3 + c / 3][d] = true;
+                }
+            }
+        }
+        solve(board, 0);
+    }
+
+    private boolean solve(char[][] board, int pos) {
+        if (pos == 81) return true;                  // every cell filled
+
+        int r = pos / 9;
+        int c = pos % 9;
+
+        if (board[r][c] != '.') {
+            return solve(board, pos + 1);            // pre-filled, move on
+        }
+
+        int b = (r / 3) * 3 + c / 3;
+        for (int d = 1; d <= 9; d++) {
+            if (rows[r][d] || cols[c][d] || boxes[b][d]) continue;
+
+            // place digit
+            board[r][c] = (char) ('0' + d);
+            rows[r][d] = cols[c][d] = boxes[b][d] = true;
+
+            if (solve(board, pos + 1)) return true;
+
+            // undo
+            board[r][c] = '.';
+            rows[r][d] = cols[c][d] = boxes[b][d] = false;
+        }
+        return false;                                // no digit fits, backtrack
+    }
+}
